@@ -1,0 +1,9 @@
+# Placeholder GLB Model
+#
+# This is a placeholder file. The actual .glb model should be placed here.
+# For now, the LoadingPlaceholder component will be used instead.
+#
+# To add a real model:
+# 1. Download a .glb file (e.g., from https://sketchfab.com)
+# 2. Place it in public/models/placeholder.glb
+# 3. The Model component will automatically load it
