@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { OrbitNav, PageTransition } from "@/components/navigation";
 
 export const metadata: Metadata = {
   title: "Artifact Analyzer",
@@ -13,7 +14,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <PageTransition>
+          {children}
+        </PageTransition>
+        <OrbitNav />
+      </body>
     </html>
   );
 }

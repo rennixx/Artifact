@@ -59,9 +59,9 @@ export const TrapezoidButton = forwardRef<
         "disabled:opacity-40 disabled:cursor-not-allowed"
       ),
       secondary: cn(
-        "border border-white/30 text-white/70",
+        "border border-electricCyan/50 text-electricCyan/70",
         "bg-transparent",
-        "hover:bg-white/10 hover:border-white/50 hover:text-white",
+        "hover:bg-electricCyan/10 hover:border-electricCyan hover:text-electricCyan",
         "disabled:opacity-40 disabled:cursor-not-allowed"
       ),
     };
