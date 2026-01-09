@@ -40,11 +40,13 @@ export interface AppraisalData {
 interface ScanStore {
   // State
   scanState: ScanState;
+  scanProgress: number; // 0 to 1
   appraisalData: AppraisalData | null;
   error: string | null;
 
   // Actions
   startScan: () => void;
+  setScanProgress: (progress: number) => void;
   completeScan: (data: AppraisalData) => void;
   failScan: (error: string) => void;
   reset: () => void;
@@ -56,6 +58,7 @@ interface ScanStore {
 export const useScanStore = create<ScanStore>((set) => ({
   // Initial state
   scanState: "idle",
+  scanProgress: 0,
   appraisalData: null,
   error: null,
 
@@ -63,13 +66,20 @@ export const useScanStore = create<ScanStore>((set) => ({
   startScan: () =>
     set({
       scanState: "scanning",
+      scanProgress: 0,
       appraisalData: null,
       error: null,
     }),
 
+  setScanProgress: (progress) =>
+    set((state) => ({
+      scanProgress: Math.max(0, Math.min(1, progress)),
+    })),
+
   completeScan: (data) =>
     set({
       scanState: "complete",
+      scanProgress: 1,
       appraisalData: data,
       error: null,
     }),
@@ -83,6 +93,7 @@ export const useScanStore = create<ScanStore>((set) => ({
   reset: () =>
     set({
       scanState: "idle",
+      scanProgress: 0,
       appraisalData: null,
       error: null,
     }),

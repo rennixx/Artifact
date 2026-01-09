@@ -21,3 +21,6 @@ export { LoadingPlaceholder } from "./LoadingPlaceholder";
 export type { LoadingPlaceholderProps } from "./LoadingPlaceholder";
 
 export { WebGLError } from "./WebGLError";
+
+export { ScannerEffect } from "./ScannerEffect";
+export type { ScannerEffectProps } from "./ScannerEffect";

@@ -20,3 +20,6 @@ export type {
 
 export { GlitchText } from "./GlitchText";
 export type { GlitchTextProps, GlitchTrigger } from "./GlitchText";
+
+export { ScanProgressBar } from "./ScanProgressBar";
+export type { ScanProgressBarProps } from "./ScanProgressBar";
