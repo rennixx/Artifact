@@ -8,7 +8,7 @@ export type ScanState = "idle" | "scanning" | "complete" | "error";
 /**
  * Artifact grade type
  */
-export type ArtifactGrade = "S" | "A" | "B" | "C" | "D";
+export type ArtifactGrade = "S" | "A" | "B" | "C" | "D" | "F";
 
 /**
  * Artifact metrics
@@ -41,6 +41,7 @@ interface ScanStore {
   // State
   scanState: ScanState;
   scanProgress: number; // 0 to 1
+  showResults: boolean;
   appraisalData: AppraisalData | null;
   error: string | null;
 
@@ -49,6 +50,8 @@ interface ScanStore {
   setScanProgress: (progress: number) => void;
   completeScan: (data: AppraisalData) => void;
   failScan: (error: string) => void;
+  showResultsCard: () => void;
+  hideResults: () => void;
   reset: () => void;
 }
 
@@ -59,6 +62,7 @@ export const useScanStore = create<ScanStore>((set) => ({
   // Initial state
   scanState: "idle",
   scanProgress: 0,
+  showResults: false,
   appraisalData: null,
   error: null,
 
@@ -69,6 +73,7 @@ export const useScanStore = create<ScanStore>((set) => ({
       scanProgress: 0,
       appraisalData: null,
       error: null,
+      showResults: false,
     }),
 
   setScanProgress: (progress) =>
@@ -90,11 +95,16 @@ export const useScanStore = create<ScanStore>((set) => ({
       error,
     }),
 
+  showResultsCard: () => set({ showResults: true }),
+
+  hideResults: () => set({ showResults: false }),
+
   reset: () =>
     set({
       scanState: "idle",
       scanProgress: 0,
       appraisalData: null,
       error: null,
+      showResults: false,
     }),
 }));

@@ -1,13 +1,22 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { Suspense, useState } from "react";
-import { TrapezoidButton, DecorativeText, ScanProgressBar } from "@/components/ui";
+import { Suspense } from "react";
+import {
+  TrapezoidButton,
+  DecorativeText,
+  ScanProgressBar,
+  ResultCard,
+  ShockwaveEffect,
+  ScreenFlash,
+} from "@/components/ui";
 import { LoadingPlaceholder } from "@/components/3d";
 import { useScanStore } from "@/store/scanStore";
 import { useScanner } from "@/lib/hooks/useScanner";
 import { motion, AnimatePresence } from "framer-motion";
-import * as THREE from "three";
+import { createRevealTimeline, RevealCallbacks } from "@/lib/animations/revealTimeline";
+import { generateMockAppraisalSync } from "@/lib/mockAppraisal";
 
 // Dynamically import 3D components to disable SSR
 const Scene = dynamic(() => import("@/components/3d/Scene").then((mod) => mod.Scene), {
@@ -36,10 +45,6 @@ const ParticleField = dynamic(() => import("@/components/3d/ParticleField").then
   ssr: false,
 });
 
-const Model = dynamic(() => import("@/components/3d/Model").then((mod) => mod.Model), {
-  ssr: false,
-});
-
 const Controls = dynamic(() => import("@/components/3d/Controls").then((mod) => mod.Controls), {
   ssr: false,
 });
@@ -49,23 +54,102 @@ const WebGLError = dynamic(() => import("@/components/3d/WebGLError").then((mod)
 });
 
 export default function Home() {
+  const [showShockwave, setShowShockwave] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
 
-  const { scanState, scanProgress } = useScanStore();
+  const { scanState, scanProgress, appraisalData, showResults, showResultsCard, hideResults, reset } = useScanStore();
+
+  // Store the current timeline in a ref
+  const timelineRef = useRef<GSAPTimeline | null>(null);
+
+  // Create reveal timeline callback
+  const handleRevealComplete = () => {
+    console.log("Full reveal sequence complete");
+  };
+
+  // Setup reveal callbacks
+  const revealCallbacks: RevealCallbacks = {
+    onScanComplete: () => {
+      console.log("Scan complete - model solidified");
+    },
+    onGradeStamp: () => {
+      console.log("Grade stamp revealed");
+    },
+    onPriceCounter: () => {
+      console.log("Price counter revealed");
+    },
+    onShockwave: () => {
+      console.log("Triggering shockwave");
+      setShowShockwave(true);
+    },
+    onMetrics: () => {
+      console.log("Metrics revealed");
+    },
+    onButtons: () => {
+      console.log("Buttons revealed");
+      showResultsCard();
+    },
+    onComplete: handleRevealComplete,
+  };
+
   const { startScan, resetScan } = useScanner({
     scanDuration: 2.5,
     onComplete: () => {
-      // Trigger flash effect on completion
-      setShowFlash(true);
-      setTimeout(() => setShowFlash(false), 100);
+      // Generate mock appraisal data (sync version for instant results)
+      const mockData = generateMockAppraisalSync();
+
+      // Create and play the reveal timeline
+      const timeline = createRevealTimeline({
+        data: mockData,
+        callbacks: revealCallbacks,
+      });
+
+      timelineRef.current = timeline;
+      timeline.play();
     },
   });
 
   const handleScanClick = () => {
     if (scanState === "idle" || scanState === "complete") {
-      resetScan();
-      setTimeout(() => startScan(), 50);
+      hideResults();
+      reset();
+      setShowShockwave(false);
+      setShowFlash(false);
+
+      // Kill any existing timeline
+      if (timelineRef.current) {
+        timelineRef.current.kill();
+        timelineRef.current = null;
+      }
+
+      // Small delay before starting scan
+      setTimeout(() => {
+        startScan();
+      }, 50);
     }
+  };
+
+  const handleScanAgain = () => {
+    hideResults();
+    reset();
+    setShowShockwave(false);
+    setShowFlash(false);
+
+    // Kill any existing timeline
+    if (timelineRef.current) {
+      timelineRef.current.kill();
+      timelineRef.current = null;
+    }
+
+    // Small delay before starting scan
+    setTimeout(() => {
+      startScan();
+    }, 300);
+  };
+
+  const handleViewDetails = () => {
+    console.log("View details clicked", appraisalData);
+    // TODO: Navigate to details page or show modal
   };
 
   const getButtonText = () => {
@@ -82,6 +166,15 @@ export default function Home() {
         return "INITIATE SCAN";
     }
   };
+
+  // Cleanup timeline on unmount
+  useEffect(() => {
+    return () => {
+      if (timelineRef.current) {
+        timelineRef.current.kill();
+      }
+    };
+  }, []);
 
   return (
     <>
@@ -102,24 +195,34 @@ export default function Home() {
           <Controls />
         </Scene>
 
-        {/* Scan completion flash effect */}
-        <AnimatePresence>
-          {showFlash && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.3 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.1 }}
-              className="absolute inset-0 bg-white pointer-events-none z-20"
-            />
-          )}
-        </AnimatePresence>
+        {/* Screen Flash Effect */}
+        <ScreenFlash
+          trigger={showFlash}
+          intensity={0.3}
+          duration={0.2}
+          onComplete={() => setShowFlash(false)}
+        />
+
+        {/* Shockwave effect */}
+        <ShockwaveEffect
+          trigger={showShockwave}
+          origin={{ x: typeof window !== "undefined" ? window.innerWidth / 2 : 500, y: typeof window !== "undefined" ? window.innerHeight / 2 : 400 }}
+          onComplete={() => setShowShockwave(false)}
+        />
+
+        {/* Result Card */}
+        <ResultCard
+          appraisalData={appraisalData}
+          visible={showResults}
+          onScanAgain={handleScanAgain}
+          onViewDetails={handleViewDetails}
+        />
 
         {/* UI Overlay */}
         <div className="absolute inset-0 pointer-events-none">
           <DecorativeText text="V.0.0.1" position="top-left" />
           <DecorativeText text="SYS_READY" position="top-right" />
-          <DecorativeText text={scanState === "scanning" ? "[SCANNING...]" : "[READY]"} position="bottom-left" />
+          <DecorativeText text={scanState === "scanning" ? "[SCANNING...]" : scanState === "complete" ? "[COMPLETE]" : "[READY]"} position="bottom-left" />
           <DecorativeText text="● LIVE" position="bottom-right" />
         </div>
 
@@ -129,7 +232,7 @@ export default function Home() {
             Artifact Analyzer
           </h1>
           <p className="text-xs md:text-sm text-electricCyan/70 tracking-wider mt-2">
-            3D Visualization // Phase 4
+            3D Visualization // Phase 5
           </p>
         </div>
 
@@ -140,16 +243,25 @@ export default function Home() {
           </div>
         )}
 
-        {/* Bottom UI */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-auto">
-          <TrapezoidButton
-            variant="primary"
-            disabled={scanState === "scanning"}
-            onClick={handleScanClick}
-          >
-            {getButtonText()}
-          </TrapezoidButton>
-        </div>
+        {/* Bottom UI - hide when result is visible */}
+        <AnimatePresence>
+          {!showResults && (
+            <motion.div
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-auto"
+            >
+              <TrapezoidButton
+                variant="primary"
+                disabled={scanState === "scanning"}
+                onClick={handleScanClick}
+              >
+                {getButtonText()}
+              </TrapezoidButton>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </>
   );

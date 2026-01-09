@@ -84,6 +84,12 @@ export const GRADES = {
     description: "Poor quality",
     minScore: 0,
   },
+  F: {
+    label: "F-TIER",
+    color: "#8b0000",
+    description: "Failed quality",
+    minScore: 0,
+  },
 } as const;
 
 /**
