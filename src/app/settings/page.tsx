@@ -5,20 +5,20 @@ import { TrapezoidButton } from "@/components/ui";
 
 export default function SettingsPage() {
   return (
-    <div className="min-h-screen bg-voidBlack p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-voidBlack/80 backdrop-blur-xl p-8 flex items-center justify-center">
+      <div className="max-w-2xl w-full">
         <ChamferedContainer className="p-8">
-          <h1 className="text-4xl font-bold text-electricCyan mb-4 tracking-wider">
+          <h1 className="text-4xl font-bold text-electricCyan mb-4 tracking-wider text-center">
             SETTINGS
           </h1>
-          <p className="text-electricCyan/70 mb-8">
+          <p className="text-electricCyan/70 mb-8 text-center">
             Configure your artifact analyzer experience
           </p>
 
           {/* Settings sections */}
           <div className="space-y-6">
             {/* Audio Settings */}
-            <div className="border border-electricCyan/20 rounded-lg p-4 bg-slateGrey/50">
+            <div className="border border-electricCyan/20 rounded-lg p-4 bg-slateGrey/30 backdrop-blur-md">
               <h2 className="text-xl font-bold text-electricCyan mb-4">AUDIO</h2>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -42,7 +42,7 @@ export default function SettingsPage() {
             </div>
 
             {/* Display Settings */}
-            <div className="border border-electricCyan/20 rounded-lg p-4 bg-slateGrey/50">
+            <div className="border border-electricCyan/20 rounded-lg p-4 bg-slateGrey/30 backdrop-blur-md">
               <h2 className="text-xl font-bold text-electricCyan mb-4">DISPLAY</h2>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -61,7 +61,7 @@ export default function SettingsPage() {
             </div>
 
             {/* Performance Settings */}
-            <div className="border border-electricCyan/20 rounded-lg p-4 bg-slateGrey/50">
+            <div className="border border-electricCyan/20 rounded-lg p-4 bg-slateGrey/30 backdrop-blur-md">
               <h2 className="text-xl font-bold text-electricCyan mb-4">PERFORMANCE</h2>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -86,7 +86,7 @@ export default function SettingsPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-4 pt-4">
+            <div className="flex gap-4 pt-4 justify-center">
               <TrapezoidButton variant="primary">Save Changes</TrapezoidButton>
               <TrapezoidButton variant="secondary">Reset to Defaults</TrapezoidButton>
             </div>

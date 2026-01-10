@@ -3,11 +3,14 @@
 import React, { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { HotspotManager } from "./HotspotManager";
+import { DEFAULT_HOTSPOTS } from "@/lib/hotspotData";
 
 export interface LoadingPlaceholderProps {
   size?: [number, number, number];
   color?: string;
   wireframe?: boolean;
+  showHotspots?: boolean;
 }
 
 /**
@@ -18,8 +21,9 @@ export const LoadingPlaceholder = ({
   size = [1, 1, 1],
   color = "#00f3ff",
   wireframe = true,
+  showHotspots = false,
 }: LoadingPlaceholderProps) => {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const meshRef = useRef<THREE.Object3D>(null);
 
   // Rotation animation
   useFrame((state, delta) => {
@@ -30,14 +34,24 @@ export const LoadingPlaceholder = ({
   });
 
   return (
-    <mesh ref={meshRef}>
-      <boxGeometry args={size as [number, number, number]} />
-      <meshBasicMaterial
-        wireframe={wireframe}
-        color={color}
-        transparent
-        opacity={0.8}
-      />
-    </mesh>
+    <group ref={meshRef}>
+      <mesh>
+        <boxGeometry args={size as [number, number, number]} />
+        <meshBasicMaterial
+          wireframe={wireframe}
+          color={color}
+          transparent
+          opacity={0.8}
+        />
+      </mesh>
+      {/* Show hotspots when scan is complete */}
+      {showHotspots && (
+        <HotspotManager
+          hotspots={DEFAULT_HOTSPOTS}
+          enabled={true}
+          modelRef={meshRef}
+        />
+      )}
+    </group>
   );
 };

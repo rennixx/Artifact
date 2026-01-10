@@ -10,6 +10,8 @@ import {
   ResultCard,
   ShockwaveEffect,
   ScreenFlash,
+  DataStream,
+  HotspotTooltipOverlay,
 } from "@/components/ui";
 import { LoadingPlaceholder } from "@/components/3d";
 import { useScanStore } from "@/store/scanStore";
@@ -190,10 +192,17 @@ export default function Home() {
               size={[1.5, 1.5, 1.5]}
               color="#00f3ff"
               wireframe={scanState !== "complete"}
+              showHotspots={scanState === "complete"}
             />
           </Suspense>
           <Controls />
         </Scene>
+
+        {/* Hotspot Tooltip Overlay - 2D overlay outside Canvas */}
+        <HotspotTooltipOverlay />
+
+        {/* Data Stream - shows during scanning */}
+        <DataStream isActive={scanState === "scanning"} speed={60} />
 
         {/* Screen Flash Effect */}
         <ScreenFlash
@@ -232,7 +241,7 @@ export default function Home() {
             Artifact Analyzer
           </h1>
           <p className="text-xs md:text-sm text-electricCyan/70 tracking-wider mt-2">
-            3D Visualization // Phase 5
+            3D Visualization // Phase 7
           </p>
         </div>
 

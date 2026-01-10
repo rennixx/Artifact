@@ -5,6 +5,8 @@ import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { scanVertexShader, scanFragmentShader } from "@/lib/shaders/scanShader";
+import { HotspotManager } from "./HotspotManager";
+import { DEFAULT_HOTSPOTS } from "@/lib/hotspotData";
 
 export interface ModelProps {
   modelPath: string;
@@ -13,6 +15,7 @@ export interface ModelProps {
   rotationSpeed?: number;
   isScanning?: boolean;
   scanProgress?: number;
+  showHotspots?: boolean;
 }
 
 type MaterialType = 'wireframe' | 'scanning' | 'solid';
@@ -27,6 +30,7 @@ export const Model = ({
   rotationSpeed = 0.002,
   isScanning = false,
   scanProgress = 0,
+  showHotspots = false,
 }: ModelProps) => {
   const groupRef = useRef<THREE.Group>(null);
   const [materialType, setMaterialType] = useState<MaterialType>('wireframe');
@@ -110,7 +114,7 @@ export const Model = ({
     });
   }, [isScanning, scanProgress, materialType, clonedScene]);
 
-  // Auto-rotate animation
+  // Auto-rotate animation (disable when hotspot is active)
   useFrame((state, delta) => {
     if (groupRef.current && autoRotate) {
       groupRef.current.rotation.y += rotationSpeed;
@@ -121,9 +125,20 @@ export const Model = ({
     return null;
   }
 
+  // For LoadingPlaceholder (no actual model), still show hotspots
+  const isPlaceholder = modelPath.includes("placeholder");
+
   return (
     <group ref={groupRef} scale={scale}>
       <primitive object={clonedScene} />
+      {/* Show hotspots after scan is complete */}
+      {showHotspots && (
+        <HotspotManager
+          hotspots={DEFAULT_HOTSPOTS}
+          enabled={true}
+          modelRef={groupRef}
+        />
+      )}
     </group>
   );
 };

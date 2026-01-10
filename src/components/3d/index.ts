@@ -24,3 +24,9 @@ export { WebGLError } from "./WebGLError";
 
 export { ScannerEffect } from "./ScannerEffect";
 export type { ScannerEffectProps } from "./ScannerEffect";
+
+export { Hotspot } from "./Hotspot";
+export type { HotspotProps } from "./Hotspot";
+
+export { HotspotManager } from "./HotspotManager";
+export type { HotspotManagerProps } from "./HotspotManager";
